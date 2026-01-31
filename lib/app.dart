@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
-import 'shared/routes.dart';
+import 'features/navigation/navigation_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -10,12 +10,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Watermark Pro',
+      title: 'Lens Mark',
       theme: AppTheme.light,
 
-      // Routing terpusat
-      onGenerateRoute: AppRoutes.onGenerateRoute,
-      initialRoute: AppRoutes.picker,
+      // Root aplikasi sekarang adalah Bottom Navigation
+      home: const NavigationScreen(),
     );
   }
 }
