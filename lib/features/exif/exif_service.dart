@@ -1,11 +1,15 @@
 import 'dart:io';
-
 import 'package:exif/exif.dart';
 
-import 'exif_model.dart';
+class ExifResult {
+  final String? make;
+  final String? model;
+
+  const ExifResult({this.make, this.model});
+}
 
 class ExifService {
-  Future<ExifModel?> read(File file) async {
+  Future<ExifResult?> readExif(File file) async {
     try {
       final bytes = await file.readAsBytes();
       final data = await readExifFromBytes(bytes);
@@ -13,7 +17,7 @@ class ExifService {
       final make = data['Image Make']?.printable;
       final model = data['Image Model']?.printable;
 
-      return ExifModel(make: make, model: model);
+      return ExifResult(make: make?.trim(), model: model?.trim());
     } catch (_) {
       return null;
     }
