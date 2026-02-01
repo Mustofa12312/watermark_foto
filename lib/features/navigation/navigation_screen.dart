@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../editor/editor_controller.dart'; // ✅ INI YANG KURANG
+import '../editor/editor_screen.dart';
+import '../export/export_screen.dart';
 import '../picker/picker_screen.dart';
 import '../presets/preset_screen.dart';
 import '../settings/settings_screen.dart';
@@ -18,14 +20,13 @@ class NavigationScreen extends ConsumerWidget {
         index: currentIndex,
         children: const [
           /// TAB 0 — Editor
-          /// PickerScreen akan mengurus pilih foto → editor
-          PickerScreen(),
+          EditorTab(),
 
           /// TAB 1 — Preset
           PresetScreen(),
 
           /// TAB 2 — Export
-          ExportScreenPlaceholder(),
+          ExportScreen(),
 
           /// TAB 3 — Settings
           SettingsScreen(),
@@ -51,19 +52,18 @@ class NavigationScreen extends ConsumerWidget {
   }
 }
 
-/// Placeholder Export
-/// Nanti akan diganti ExportScreen sebenarnya
-/// setelah EditorState terhubung
-class ExportScreenPlaceholder extends StatelessWidget {
-  const ExportScreenPlaceholder({super.key});
+/// EditorTab memilih Picker atau Editor otomatis
+class EditorTab extends ConsumerWidget {
+  const EditorTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Export (select photo first)',
-        style: TextStyle(fontSize: 16),
-      ),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final editorState = ref.watch(editorControllerProvider);
+
+    if (editorState == null) {
+      return const PickerScreen();
+    }
+
+    return const EditorScreen();
   }
 }

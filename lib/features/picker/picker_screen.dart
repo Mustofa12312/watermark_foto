@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/primary_button.dart';
-import '../editor/editor_screen.dart';
+import '../../shared/current_image_provider.dart';
 import 'picker_controller.dart';
 
 class PickerScreen extends ConsumerWidget {
@@ -12,32 +12,30 @@ class PickerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final File? image = ref.watch(pickerControllerProvider);
+    final File? pickedImage = ref.watch(pickerControllerProvider);
 
     return Scaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: image == null
-              ? PrimaryButton(
-                  label: 'Choose Photo',
-                  onPressed: () async {
-                    await ref
-                        .read(pickerControllerProvider.notifier)
-                        .pickImage();
-                  },
-                )
-              : PrimaryButton(
-                  label: 'Edit Photo',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditorScreen(imageFile: image),
-                      ),
-                    );
-                  },
-                ),
+          child: PrimaryButton(
+            label: pickedImage == null ? 'Choose Photo' : 'Change Photo',
+            onPressed: () async {
+              await ref.read(pickerControllerProvider.notifier).pickImage();
+
+              final file = ref.read(pickerControllerProvider);
+
+              if (file != null) {
+                // 🔑 SIMPAN KE GLOBAL STATE
+                ref.read(currentImageProvider.notifier).state = file;
+
+                // Optional UX feedback
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Photo selected')));
+              }
+            },
+          ),
         ),
       ),
     );
