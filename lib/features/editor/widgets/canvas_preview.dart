@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-class CanvasPreview extends StatelessWidget {
+import 'watermark_painter.dart';
+
+class CanvasPreview extends StatefulWidget {
   final File imageFile;
   final String watermarkText;
 
@@ -13,19 +16,42 @@ class CanvasPreview extends StatelessWidget {
   });
 
   @override
+  State<CanvasPreview> createState() => _CanvasPreviewState();
+}
+
+class _CanvasPreviewState extends State<CanvasPreview> {
+  ui.Image? _image;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    final bytes = await widget.imageFile.readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+
+    setState(() {
+      _image = frame.image;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(child: Image.file(imageFile, fit: BoxFit.contain)),
-        Positioned(
-          bottom: 16,
-          left: 16,
-          child: Text(
-            watermarkText,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
+    if (_image == null) {
+      return const CircularProgressIndicator();
+    }
+
+    return FittedBox(
+      child: CustomPaint(
+        size: Size(_image!.width.toDouble(), _image!.height.toDouble()),
+        painter: WatermarkPainter(
+          image: _image!,
+          watermarkText: widget.watermarkText,
         ),
-      ],
+      ),
     );
   }
 }
